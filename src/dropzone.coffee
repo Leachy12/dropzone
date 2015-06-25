@@ -247,7 +247,12 @@ class Dropzone extends Emitter
     # You can use {{maxFiles}} here, which will be replaced by the option.
     dictMaxFilesExceeded: "You can not upload any more files."
 
-
+    # Override CSRF Key if needed.
+    csrfKey: "_token"
+    
+    # If this is set to len>0 then the key/value will be passed.
+    csrfToken: ""
+    
     # If `done()` is called without argument the file is accepted
     # If you call it with an error message, the file is rejected
     # (This allows for asynchronous validation).
@@ -1108,6 +1113,8 @@ class Dropzone extends Emitter
 
     method = resolveOption @options.method, files
     url = resolveOption @options.url, files
+    csrf_key = resolveOption @options.csrfKey
+    csrf_token = resolveOption @options.csrfToken
     xhr.open method, url, true
 
     # Has to be after `.open()`. See https://github.com/enyo/dropzone/issues/179
@@ -1213,7 +1220,10 @@ class Dropzone extends Emitter
     # Has to be last because some servers (eg: S3) expect the file to be the
     # last parameter
     formData.append @_getParamName(i), files[i], files[i].name for i in [0..files.length-1]
-
+    
+    if csrf_token.length > 0
+      formData.append csrf_key, csrf_token
+      
     xhr.send formData
 
 
